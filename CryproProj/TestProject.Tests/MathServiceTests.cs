@@ -34,4 +34,48 @@ public class MathServiceTests
         // Assert
         Assert.Equal(expected, result);
     }
+
+    [Theory]
+    [InlineData(8, 2, 3)]
+    [InlineData(25, 5, 2)]
+    [InlineData(20, 5, 1.86)]
+    public void Log_PositiveNumberPositiveBase_CorrectResult(int number, int baseX, double expected)
+    {
+        var result = MathService.Log(number, baseX);
+        
+        Assert.Equal(expected, result, precision: 2);
+    }
+
+    [Fact]
+    public void Log_ZeroBase_NanValue()
+    {
+        var result = MathService.Log(100, 0);
+        
+        Assert.True(double.IsNaN(result));
+    }
+    
+    [Fact]
+    public void Log_NumberOneZeroBase_ZeroValue()
+    {
+        var result = MathService.Log(1, 0);
+        
+        Assert.Equal(0, result);
+    }
+    
+    [Theory]
+    [InlineData(8, 2, 4)]
+    [InlineData(25, 5, 5)]
+    [InlineData(20, 5, 4)]
+    public void Divide_AnyNumbers_CorrectResult(int x, int y, double expected)
+    {
+        var result = MathService.Divide(x, y);
+        
+        Assert.Equal(expected, result, precision: 2);
+    }
+
+    [Fact]
+    public void Divide_Zero_DivideByZeroException()
+    {
+        Assert.Throws<DivideByZeroException>(() => MathService.Divide(10, 0));
+    }
 }
