@@ -1,6 +1,7 @@
 using CryptoProj.API.Validators;
 using CryptoProj.Domain.Abstractions;
 using CryptoProj.Domain.Models.Requests;
+using CryptoProj.Domain.Services;
 using CryptoProj.Domain.Services.Auth;
 using CryptoProj.Domain.Services.Cryptocurrencies;
 using CryptoProj.Domain.Services.Users;
@@ -21,12 +22,15 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICryptocurrencyRepository, CryptocurrencyDataProvider>();
         services.AddScoped<ICryptoHistoryRepository, CryptoHistoryRepository>();
+        services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
         services.AddScoped<UsersService>();
         services.AddScoped<CryptocurrenciesService>();
         services.AddTransient<JwtTokenGenerator>();
+        services.AddScoped<AnalyticsService>();
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
         
         return services;
     }

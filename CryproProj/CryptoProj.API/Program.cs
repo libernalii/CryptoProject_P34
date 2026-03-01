@@ -1,14 +1,16 @@
-using System.Net.WebSockets;
-using System.Text;
 using CryptoProj.API;
 using CryptoProj.API.Endpoints;
 using CryptoProj.API.Middlewares;
+using CryptoProj.Domain.Abstractions;
 using CryptoProj.Storage;
+using CryptoProj.Storage.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Net.WebSockets;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
