@@ -4,6 +4,8 @@ using CryptoProj.API.Middlewares;
 using CryptoProj.Domain.Abstractions;
 using CryptoProj.Storage;
 using CryptoProj.Storage.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebSockets;
@@ -29,6 +31,8 @@ builder.Services.AddMemoryCache();
 //builder.Services.AddHostedService<TestHostedService>();
 //builder.Services.AddHostedService<CryptoAnalysisHostedService>();
 
+
+builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -42,7 +46,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["SecretKey"]!))
         };
-    });
+    })
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+});
 
 builder.Services.AddAuthorization(opt => opt
     .AddPolicy("Admin", 

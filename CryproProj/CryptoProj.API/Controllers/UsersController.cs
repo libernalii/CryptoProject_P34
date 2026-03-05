@@ -36,4 +36,14 @@ public class UsersController : ControllerBase
         var user = await _usersService.Login(request);
         return Ok(user);
     }
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] string IdToken)
+    {
+        var jwt = await _usersService.AuthenticateWithGoogle(IdToken);
+        if (jwt == null)
+        {
+            return Unauthorized();
+        }
+        return Ok(new { Token = jwt });
+    }
 }

@@ -2,7 +2,12 @@ using CryptoProj.Domain.Abstractions;
 using CryptoProj.Domain.Exceptions;
 using CryptoProj.Domain.Models;
 using CryptoProj.Domain.Services.Auth;
+using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace CryptoProj.Domain.Services.Users;
 
@@ -65,6 +70,39 @@ public class UsersService
         return user == null
             ? null
             : MapToResponse(user);
+    }
+    public async Task<string> AuthenticateWithGoogle(string IdToken)
+    {
+        try
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(IdToken);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, payload.Subject),
+                new Claim(ClaimTypes.Email, payload.Email),
+                new Claim(ClaimTypes.Name, payload.Name)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretKey"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "MyApi",
+                audience: "MyApiClient",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private UserResponse MapToResponse(User user, string? token = null) =>
