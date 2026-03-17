@@ -2,6 +2,7 @@ using CryptoProj.API;
 using CryptoProj.API.Endpoints;
 using CryptoProj.API.Middlewares;
 using CryptoProj.Domain.Abstractions;
+using CryptoProj.Domain.Services;
 using CryptoProj.Storage;
 using CryptoProj.Storage.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -13,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Net.WebSockets;
 using System.Text;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,11 @@ builder.Services.AddWebSockets(opt => opt.KeepAliveInterval = TimeSpan.FromSecon
 builder.Services.AddTransient<GlobalExceptionHandler>();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "CryptoProj_";
+});
 //builder.Services.AddHostedService<TestHostedService>();
 //builder.Services.AddHostedService<CryptoAnalysisHostedService>();
 
@@ -64,6 +71,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplication();
+
+builder.Services.AddScoped<RedisCacheService>();
 
 var app = builder.Build();
 
@@ -123,6 +132,12 @@ app.Map("/ws", async (HttpContext context) =>
 });
 
 app.MapNewsEndpoints();
+
+app.MapGet("/redis-test", async (RedisCacheService cacheService) =>
+{
+    var value = await cacheService.GetTestValue();
+    return Results.Ok(value);
+});
 
 app.Run();
 
